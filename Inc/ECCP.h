@@ -18,7 +18,7 @@
 #define LED1 LATC6	//状態表示用LEDポート
 #define LED2 LATC7
 
-#define MAX_DUTY 999//デューティ値の上限は1023だが、回転方向変更時、危険なため制限
+#define MAX_DUTY 1023//デューティ値の上限は1023だが、回転方向変更時、危険なため制限
 
 typedef enum{
   FREE_MODE,//フリー動作

@@ -47,17 +47,15 @@ typedef enum{
   IN_GAME = 1,
 } Game_mode;
 
-#define RIFT_IN RA3
-#define RIFT_UPPER RA4
-#define RIFT_LOWER RA5
-#define LOUNCH_RAIL_S RA0 //基板のI2Cから遠い方
-#define OUT_1_S RA1 //発射機構に近い方
-#define OUT_2_S RA2
+#define BALL_IN RA0
+#define SENS_1 RA5
+#define SENS_2 RA4
+#define SENS_3 RA3
+#define SENS_4 RA2
+#define SENS_5 RA1
 #define LED_1 LATC1
 #define LED_2 LATC0
 #define LED_3 LATC5
-#define LOUNCH LATB5 //基板のI2Cから遠い方
-#define BALL_SET LATB3
 
 #ifdef	__cplusplus
 }

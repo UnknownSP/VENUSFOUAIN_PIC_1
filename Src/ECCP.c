@@ -6,13 +6,13 @@ void PWMInit(void){
   TRISCbits.TRISC7=0;
 
   PR2 = 255;//PWM周期の値を設定
-  CCP1CON = 0b01001111; //正転フルブリッジ出力　全出力アクティブLow
+  CCP1CON = 0b01001100; //正転フルブリッジ出力　全出力アクティブLow
 
   /* タイマ２を起動、設定 */
   TMR2IF=0;//TMR2IF割り込みフラグビットをクリア
   CCPTMRS0 = 0b11111100;//CCP1はPWMモードでTimer2を使用
   CCPTMRS1 = 0b00000011;//予約
-  T2CON = 0b00000100;//プリスケーラを1:1に設定、Timer2を有効化
+  T2CON = 0b00000110;//プリスケーラを1:16に設定、Timer2を有効化
 
   PWM1CON = 0b00000000; //自動シャットダウンの設定
   //PSTR1CON = 0b00011111;ステアリング制御
@@ -48,7 +48,7 @@ void PWMSet(uint16_t duty, drive_mode MODE) {
   case FORWARD_MODE:
       LED1 = 1;
       LED2 = 0;
-      CCP1CON = 0b01001111; //正転フルブリッジ出力　全出力アクティブLow
+      CCP1CON = 0b01001100; //正転フルブリッジ出力　全出力アクティブHigh
       CCPR1L = duty >> 2; //デューティ値の上位８ビットを読み込む
       DC1B0 = duty & 0b00000001;//デューティ値の下位２ビットを読み込む
       DC1B1 = (duty & 0b00000010) >> 1;
@@ -58,7 +58,7 @@ void PWMSet(uint16_t duty, drive_mode MODE) {
   case BACK_MODE:
       LED1 = 0;
       LED2 = 1;
-      CCP1CON = 0b11001111;//逆転フルブリッジ出力　全出力アクティブLow
+      CCP1CON = 0b11001100;//逆転フルブリッジ出力　全出力アクティブHigh
       CCPR1L = duty >> 2;
       DC1B0 = duty & 0b00000001;
       DC1B1 = (duty & 0b00000010) >> 1;

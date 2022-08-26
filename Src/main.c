@@ -4,6 +4,8 @@
 
 void init(void);
 void SendToMotor(uint16_t speed,uint8_t stat);
+void LED_Handler(int num, bool on);
+int input(int num);
 
 void main(void) {
     uint16_t speed = 0;
@@ -17,6 +19,12 @@ void main(void) {
     bool test_flag = true;
 
     Game_mode game_mode = 0;
+
+    int ball_in_count = 0;
+    int sens_count[5] = {0};
+    bool sensor_reactiong = false;
+
+    int i;
 
     init();
 
@@ -35,90 +43,24 @@ void main(void) {
             CLRWDT();
         }
 
-        if(game_mode == IN_GAME){
-            receive_mode = rcv_data[0] & 0b00000011;
-            speed = rcv_data[1] * 4;
-            if((recent_mode == 1 && receive_mode == 2) || (recent_mode == 2 && receive_mode == 1)){
-                mode_change_flag = true;
-                mode_change_count = 0;
-            }
-            if(mode_change_flag){
-                mode_change_count++;
-                if(mode_change_count >= MODE_CHANGE_WAIT_COUNT){
-                    mode_change_flag = false;
-                    mode_change_count = 0;
-                }
-                now_mode = 0;
-            }else{
-                now_mode = receive_mode;
-            }
-            recent_mode = receive_mode;  
-            
-            if(((rcv_data[0] & 0b00000100)>>2) == 1){
-                LOUNCH = 1;
-            }else{
-                LOUNCH = 0;
-            }
-            if(((rcv_data[0] & 0b00001000)>>3) == 1){
-                BALL_SET = 1;
-            }else{
-                BALL_SET = 0;
-            }
-        }else{
-            speed = 0;
-            now_mode = 0;
-            recent_mode = 0;
-            mode_change_flag = false;
-            mode_change_count = 0;
-            LOUNCH = 0;
-            BALL_SET = 0;
+        if(!RA5){
+            PWMSet(256,FORWARD_MODE);
+            LED_1 = 1;
+        }else if(!RA4){
+            PWMSet(512,FORWARD_MODE);
+        }else if(!RA3){
+            PWMSet(768,FORWARD_MODE);
+        }else if(!RA2){
+            PWMSet(1023,FORWARD_MODE);
+        }else{ 
+            LED_1 = 0;
+            PWMSet(0,FREE_MODE);   
         }
-
-        if(RIFT_IN == 1){
-            snd_data[1] |= 0b00000001;
-        }else{
-            snd_data[1] &= 0b11111110;
-        }
-        if(RIFT_LOWER == 1){
-            if(now_mode == BACK_MODE){
-                speed = 0;
-                now_mode = 0;
-            }
-            snd_data[1] |= 0b00000010;
-        }else{
-            snd_data[1] &= 0b11111101;
-        }
-        if(RIFT_UPPER == 1){
-            if(now_mode == FORWARD_MODE){
-                speed = 0;
-                now_mode = 0;
-            }
-            snd_data[1] |= 0b00000100;
-        }else{
-            snd_data[1] &= 0b11111011;
-        }
-        if(LOUNCH_RAIL_S == 1){
-            snd_data[1] |= 0b00001000;
-        }else{
-            snd_data[1] &= 0b11110111;
-        }
-        if(OUT_1_S == 0){
-            snd_data[1] |= 0b00010000;
-        }else{
-            snd_data[1] &= 0b11101111;
-        }
-        if(OUT_2_S == 0){
-            snd_data[1] |= 0b00100000;
-        }else{
-            snd_data[1] &= 0b11011111;
-        }
-
-        PWMSet(speed,now_mode);
     }
 }
 
 void init(void){
-    uint8_t addr = 0x14;
+    uint8_t addr = 0x16;
 
     // Set oscilation
     OSCCON = 0xF0; //PLL　Enable
@@ -127,21 +69,81 @@ void init(void){
     ANSELA = 0x00;
     ANSELB = 0x00;
 
-    TRISB = 0x00;
-    WPUB = 0x00;
-
-    TRISAbits.TRISA3 = 1;
-    TRISAbits.TRISA4 = 1;
-    TRISAbits.TRISA5 = 1;
+  
     TRISCbits.TRISC0 = 0;
     TRISCbits.TRISC1 = 0;
     TRISCbits.TRISC5 = 0;
-  
+
     // Set watch dog
     WDTCON = 0x13;
 
     I2C_init(addr);//アドレス
     PWMInit();
+}
+
+int input(int num){
+    switch(num){
+        case 1:
+            return SENS_1;
+            break;
+        case 2:
+            return SENS_2;
+            break;
+        case 3:
+            return SENS_3;
+            break;
+        case 4:
+            return SENS_4;
+            break;
+        case 5:
+            return SENS_5;
+            break;
+    }
+}
+
+void LED_Handler(int num, bool on){
+    switch(num){
+        case 1:
+            if(on){
+                LED_1 = 1;
+                LED_2 = 0;
+                LED_3 = 0;
+            }
+            break;
+        case 2:
+            if(on){
+                LED_1 = 0;
+                LED_2 = 1;
+                LED_3 = 0;
+            }
+            break;
+        case 3:
+            if(on){
+                LED_1 = 1;
+                LED_2 = 1;
+                LED_3 = 0;
+            }
+            break;
+        case 4:
+            if(on){
+                LED_1 = 0;
+                LED_2 = 0;
+                LED_3 = 1;
+            }
+            break;
+        case 5:
+            if(on){
+                LED_1 = 1;
+                LED_2 = 0;
+                LED_3 = 1;
+            }
+            break;
+    }
+    if(!on){
+        LED_1 = 0;
+        LED_2 = 0;
+        LED_3 = 0;
+    }
 }
 
 void interrupt  HAND(void){
