@@ -47,15 +47,21 @@ typedef enum{
   IN_GAME = 1,
 } Game_mode;
 
-#define BALL_IN RA0
-#define SENS_1 RA5
-#define SENS_2 RA4
-#define SENS_3 RA3
-#define SENS_4 RA2
-#define SENS_5 RA1
-#define LED_1 LATC1
-#define LED_2 LATC0
-#define LED_3 LATC5
+#define SW_RUN RB5
+#define SW_REV RB3
+#define SW_ALM RB0
+#define BALL_SENS_1 RC1
+#define BALL_SENS_2 RC0
+#define BALL_SENS_3 RA6
+#define BALL_SENS_4 RA7
+#define POS_SENS_1 RA4  //ちょっと上に設置されているやつ
+#define POS_SENS_2 RA3
+#define POS_SENS_3 RA2
+#define POS_SENS_4 RA1
+#define POS_SENS_5 RA0
+#define LED_1 LATC5
+#define LED_2 LATC6
+#define LED_3 LATC7
 
 #ifdef	__cplusplus
 }

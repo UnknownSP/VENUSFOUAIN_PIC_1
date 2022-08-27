@@ -5,7 +5,7 @@
 void init(void);
 void SendToMotor(uint16_t speed,uint8_t stat);
 void LED_Handler(int num, bool on);
-int input(int num);
+int pos_input(int num);
 
 void main(void) {
     uint16_t speed = 0;
@@ -43,19 +43,80 @@ void main(void) {
             CLRWDT();
         }
 
-        if(!RA5){
-            PWMSet(256,FORWARD_MODE);
-            LED_1 = 1;
-        }else if(!RA4){
-            PWMSet(512,FORWARD_MODE);
-        }else if(!RA3){
-            PWMSet(768,FORWARD_MODE);
-        }else if(!RA2){
-            PWMSet(1023,FORWARD_MODE);
-        }else{ 
-            LED_1 = 0;
-            PWMSet(0,FREE_MODE);   
+        if(game_mode == IN_GAME){
+            receive_mode = (rcv_data[0] >> 2) & 0b00000011;
+            speed = ((rcv_data[0] & 0b00000011) << 8 ) + rcv_data[1];
+            now_mode = receive_mode;
+
+            SW_RUN = (rcv_data[0] >> 4) & 0b00000001;
+            SW_REV = (rcv_data[0] >> 5) & 0b00000001;
+            SW_ALM = (rcv_data[0] >> 6) & 0b00000001;
+        }else{
+            speed = 0;
+            now_mode = 0;
+            recent_mode = 0;
+            mode_change_flag = false;
+            mode_change_count = 0;
         }
+
+        PWMSet(speed,now_mode);
+
+        if(!BALL_SENS_1){
+            LED_1 = 1;
+            snd_data[1] |= 0b00000001;
+        }else{
+            snd_data[1] &= 0b11111110;
+        }
+        if(!BALL_SENS_2){
+            LED_1 = 1;
+            snd_data[1] |= 0b00000010;
+        }else{
+            snd_data[1] &= 0b11111101;
+        }
+        if(!BALL_SENS_3){
+            LED_1 = 1;
+            snd_data[1] |= 0b00000100;
+        }else{
+            snd_data[1] &= 0b11111011;
+        }
+        if(!BALL_SENS_4){
+            LED_1 = 1;
+            snd_data[1] |= 0b00001000;
+        }else{
+            snd_data[1] &= 0b11110111;
+        }
+        if(BALL_SENS_1 && BALL_SENS_2 && BALL_SENS_3 && BALL_SENS_4){
+            LED_1 = 0;
+        }
+
+        if(!POS_SENS_1){
+            LED_2 = 1;
+            snd_data[0] |= 0b00000001;
+        }else{
+            LED_2 = 0;
+            snd_data[0] &= 0b11111110;
+        }
+        if(!POS_SENS_2){
+            snd_data[0] |= 0b00000010;
+        }else{
+            snd_data[0] &= 0b11111101;
+        }
+        if(!POS_SENS_3){
+            snd_data[0] |= 0b00000100;
+        }else{
+            snd_data[0] &= 0b11111011;
+        }
+        if(!POS_SENS_4){
+            snd_data[0] |= 0b00001000;
+        }else{
+            snd_data[0] &= 0b11110111;
+        }
+        if(!POS_SENS_5){
+            snd_data[0] |= 0b00010000;
+        }else{
+            snd_data[0] &= 0b11101111;
+        }
+
     }
 }
 
@@ -68,11 +129,16 @@ void init(void){
     // Set pin mode
     ANSELA = 0x00;
     ANSELB = 0x00;
+    
+    TRISBbits.TRISB5=0;
+    TRISBbits.TRISB3=0;
+    TRISBbits.TRISB0=0;
 
-  
-    TRISCbits.TRISC0 = 0;
-    TRISCbits.TRISC1 = 0;
+    TRISCbits.TRISC0 = 1;
+    TRISCbits.TRISC1 = 1;
     TRISCbits.TRISC5 = 0;
+    TRISCbits.TRISC6 = 0;
+    TRISCbits.TRISC7 = 0;
 
     // Set watch dog
     WDTCON = 0x13;
@@ -81,22 +147,22 @@ void init(void){
     PWMInit();
 }
 
-int input(int num){
+int pos_input(int num){
     switch(num){
         case 1:
-            return SENS_1;
+            return POS_SENS_1;
             break;
         case 2:
-            return SENS_2;
+            return POS_SENS_2;
             break;
         case 3:
-            return SENS_3;
+            return POS_SENS_3;
             break;
         case 4:
-            return SENS_4;
+            return POS_SENS_4;
             break;
         case 5:
-            return SENS_5;
+            return POS_SENS_5;
             break;
     }
 }

@@ -2,8 +2,8 @@
 #include"ECCP.h"
 
 void PWMInit(void){
-  TRISCbits.TRISC6=0;//出力として設定、CCP1の出力を無効
-  TRISCbits.TRISC7=0;
+  //TRISCbits.TRISC6=0;//出力として設定、CCP1の出力を無効
+  //TRISCbits.TRISC7=0;
 
   PR2 = 255;//PWM周期の値を設定
   CCP1CON = 0b01001100; //正転フルブリッジ出力　全出力アクティブLow
@@ -34,8 +34,8 @@ void PWMSet(uint16_t duty, drive_mode MODE) {
 
   /* フリー動作 */
   case FREE_MODE:
-      LED1 = 0; //LEDで回転方向を示す
-      LED2 = 0;
+      //LED1 = 0; //LEDで回転方向を示す
+      //LED2 = 0;
       CCP1CON = 0b01000000; //正転　PWMはオフ（ECCPxモジュールをリセット）
       CCPR1L = 0; //デューティ値を0とする
       P1A = 0;//出力をクリア
@@ -46,8 +46,8 @@ void PWMSet(uint16_t duty, drive_mode MODE) {
 
     /* 正転 */
   case FORWARD_MODE:
-      LED1 = 1;
-      LED2 = 0;
+      //LED1 = 1;
+      //LED2 = 0;
       CCP1CON = 0b01001100; //正転フルブリッジ出力　全出力アクティブHigh
       CCPR1L = duty >> 2; //デューティ値の上位８ビットを読み込む
       DC1B0 = duty & 0b00000001;//デューティ値の下位２ビットを読み込む
@@ -56,8 +56,8 @@ void PWMSet(uint16_t duty, drive_mode MODE) {
 
     /* 逆転 */
   case BACK_MODE:
-      LED1 = 0;
-      LED2 = 1;
+      //LED1 = 0;
+      //LED2 = 1;
       CCP1CON = 0b11001100;//逆転フルブリッジ出力　全出力アクティブHigh
       CCPR1L = duty >> 2;
       DC1B0 = duty & 0b00000001;
@@ -66,8 +66,8 @@ void PWMSet(uint16_t duty, drive_mode MODE) {
 
     /* ブレーキ */
   case BRAKE_MODE:
-      LED1 = 1;
-      LED2 = 1;
+      //LED1 = 1;
+      //LED2 = 1;
       CCP1CON = 0b01000000; //正転　PWMはオフ（ECCPxモジュールをリセット）
       CCPR1L = 0;
       P1A = 0;
