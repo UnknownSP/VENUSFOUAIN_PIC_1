@@ -42,6 +42,10 @@ extern "C" {
 
 #define MODE_CHANGE_WAIT_COUNT 60000
 
+#define M_MAXACCEL 1
+#define M_MAXACCEL_TIMING 15
+#define M_ACCELRANGE 50
+
 typedef enum{
   STANDBY = 0,
   IN_GAME = 1,
